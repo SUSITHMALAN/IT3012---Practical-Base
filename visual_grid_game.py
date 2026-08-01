@@ -9,7 +9,8 @@ class VisualGridHuntGame:
     def __init__(self, width=10, height=10, num_food=10, num_opponents=2, custom_walls=None):
         self.width = width
         self.height = height
-        self.agent_pos = [0, 0]  # Starting position (x, y)
+        self.agent_pos = [0, 0]
+        self.facing_direction = "Up"  
 
         if custom_walls is not None:
             self.walls = set(custom_walls)
@@ -50,6 +51,17 @@ class VisualGridHuntGame:
         self.collision = False
 
     def get_percept(self) -> dict:
+        x, y = self.agent_pos
+
+        if self.facing_direction == 'Up':
+            next_pos = (x, min(self.height - 1, y + 1))
+        elif self.facing_direction == 'Down':
+            next_pos = (x, max(0, y - 1))
+        elif self.facing_direction == 'Left':
+            next_pos = (max(0, x - 1), y)
+        else:  # Right
+            next_pos = (min(self.width - 1, x + 1), y)
+
         return {
             'agent_pos': list(self.agent_pos),
             'opponent_positions': [list(op) for op in self.opponents],
@@ -58,7 +70,9 @@ class VisualGridHuntGame:
             'hit_wall': tuple(self.agent_pos) in self.walls,
             'collision': self.collision,
             'score': self.score,
-            'remaining_food': len(self.food_positions)
+            'remaining_food': len(self.food_positions),
+            'wall_ahead': next_pos in self.walls,
+            'food_here': next_pos in self.food_positions,
         }
 
     def execute_action(self, action: str):
@@ -199,3 +213,17 @@ if __name__ == "__main__":
     # Try a larger grid size like 12x12 with 15 food and 3 opponents!
     app = GridGameGUI(root, width=12, height=12, num_food=15, num_opponents=0)
     root.mainloop()
+
+class SimpleReflexAgent:
+    def sense_and_act(self, percept):
+        if percept['food_here']:
+            return 'suck'
+        elif percept['wall_ahead']:
+            return 'turn_left'
+        else:
+            return 'move_forward'
+
+
+class ModelBasedAgent:
+    def __init__(self):
+        self.visited_cells = set()
