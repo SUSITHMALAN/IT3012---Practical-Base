@@ -12,7 +12,7 @@ class GridHuntGame:
 
         # Place a few random food pellets and obstacles (walls)
         self.food_positions = {[1, 2], [2, 3], [3, 0], [2, 1]}
-        self.walls = {[1, 1], [2, 2]}
+        self.walls = {[1, 1], [2, 2],[4, 2],[3, 5]}
 
         self.toxic_traps = set()
         available_positions = [
